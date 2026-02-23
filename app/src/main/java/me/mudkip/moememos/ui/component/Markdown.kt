@@ -41,6 +41,7 @@ import com.mikepenz.markdown.model.rememberMarkdownState
 import com.mikepenz.markdown.utils.getUnescapedTextInNode
 import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.MarkdownTokenTypes
+import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor
 import org.intellij.markdown.flavours.gfm.GFMTokenTypes
 import me.mudkip.moememos.util.EmbedInfo
 import me.mudkip.moememos.util.detectEmbed
@@ -100,9 +101,11 @@ fun Markdown(
             }
         }
     }
+    val gfmFlavour = remember { GFMFlavourDescriptor() }
     val markdownState = rememberMarkdownState(
         content = text,
-        retainState = true
+        retainState = true,
+        flavour = gfmFlavour
     )
 
     val markdownContent: @Composable () -> Unit = {
