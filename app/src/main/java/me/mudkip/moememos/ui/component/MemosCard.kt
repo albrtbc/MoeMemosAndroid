@@ -259,7 +259,7 @@ fun MemosCardActionButton(
                     text = { Text(R.string.copy_link.string) },
                     onClick = {
                         memosViewModel.host.value?.let { host ->
-                            val memoUrl = "$host/${memo.remoteId ?: memo.identifier}"
+                            val memoUrl = "${host.trimEnd('/')}/${memo.remoteId ?: memo.identifier}"
                             val sendIntent = Intent().apply {
                                 action = Intent.ACTION_SEND
                                 putExtra(Intent.EXTRA_TEXT, memoUrl)
