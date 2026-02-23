@@ -79,7 +79,10 @@ fun MemosList(
         searchString?.let { searchString ->
             if (searchString.isNotEmpty()) {
                 fullList = fullList.filter { memo ->
-                    memo.content.contains(searchString, true)
+                    memo.content.contains(searchString, true) ||
+                    memo.resources.any { resource ->
+                        resource.filename.contains(searchString, true)
+                    }
                 }
             }
         }
