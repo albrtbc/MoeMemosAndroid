@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.CloudOff
 import androidx.compose.material.icons.outlined.ContentCopy
@@ -146,6 +147,17 @@ fun MemosCard(
                     )
                 }
                 Spacer(modifier = Modifier.weight(1f))
+                IconButton(onClick = {
+                    scope.launch {
+                        memosViewModel.updateMemoPinned(memo.identifier, !memo.pinned)
+                    }
+                }) {
+                    Icon(
+                        if (memo.pinned) Icons.Filled.PushPin else Icons.Outlined.PushPin,
+                        contentDescription = if (memo.pinned) R.string.unpin.string else R.string.pin.string,
+                        tint = if (memo.pinned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
                 MemosCardActionButton(memo)
             }
 
@@ -197,39 +209,6 @@ fun MemosCardActionButton(
             Icon(Icons.Filled.MoreVert, contentDescription = null)
         }
         DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
-            if (memo.pinned) {
-                DropdownMenuItem(
-                    text = { Text(R.string.unpin.string) },
-                    onClick = {
-                        scope.launch {
-                            memosViewModel.updateMemoPinned(memo.identifier, false).suspendOnSuccess {
-                                menuExpanded = false
-                            }
-                        }
-                    },
-                    leadingIcon = {
-                        Icon(
-                            Icons.Outlined.PinDrop,
-                            contentDescription = null
-                        )
-                    })
-            } else {
-                DropdownMenuItem(
-                    text = { Text(R.string.pin.string) },
-                    onClick = {
-                        scope.launch {
-                            memosViewModel.updateMemoPinned(memo.identifier, true).suspendOnSuccess {
-                                menuExpanded = false
-                            }
-                        }
-                    },
-                    leadingIcon = {
-                        Icon(
-                            Icons.Outlined.PushPin,
-                            contentDescription = null
-                        )
-                    })
-            }
             DropdownMenuItem(
                 text = { Text(R.string.edit.string) },
                 onClick = {
