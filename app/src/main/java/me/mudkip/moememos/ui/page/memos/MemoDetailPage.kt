@@ -1,5 +1,6 @@
 package me.mudkip.moememos.ui.page.memos
 
+import android.content.Intent
 import android.text.format.DateUtils
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.CloudOff
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
@@ -44,6 +48,8 @@ import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.titleResource
 import me.mudkip.moememos.ui.component.MemoContent
 import me.mudkip.moememos.ui.component.MemosCardActionButton
+import me.mudkip.moememos.ui.page.common.LocalRootNavController
+import me.mudkip.moememos.ui.page.common.RouteName
 import me.mudkip.moememos.viewmodel.LocalMemos
 import me.mudkip.moememos.viewmodel.LocalUserState
 
@@ -80,7 +86,26 @@ fun MemoDetailPage(
                     }
                 },
                 actions = {
-                    memo?.let { MemosCardActionButton(it) }
+                    val rootNavController = LocalRootNavController.current
+                    val context = LocalContext.current
+                    memo?.let { m ->
+                        IconButton(onClick = {
+                            rootNavController.navigate("${RouteName.EDIT}?memoId=${m.identifier}")
+                        }) {
+                            Icon(Icons.Outlined.Edit, contentDescription = R.string.edit.string)
+                        }
+                        IconButton(onClick = {
+                            val sendIntent = Intent().apply {
+                                action = Intent.ACTION_SEND
+                                putExtra(Intent.EXTRA_TEXT, m.content)
+                                type = "text/plain"
+                            }
+                            context.startActivity(Intent.createChooser(sendIntent, null))
+                        }) {
+                            Icon(Icons.Outlined.Share, contentDescription = R.string.share.string)
+                        }
+                        MemosCardActionButton(m, showEditAndShare = false)
+                    }
                 }
             )
         }

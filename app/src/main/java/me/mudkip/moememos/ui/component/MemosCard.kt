@@ -192,6 +192,7 @@ fun MemosCard(
 @Composable
 fun MemosCardActionButton(
     memo: MemoEntity,
+    showEditAndShare: Boolean = true,
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -209,34 +210,36 @@ fun MemosCardActionButton(
             Icon(Icons.Filled.MoreVert, contentDescription = null)
         }
         DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
-            DropdownMenuItem(
-                text = { Text(R.string.edit.string) },
-                onClick = {
-                    rootNavController.navigate("${RouteName.EDIT}?memoId=${memo.identifier}")
-                },
-                leadingIcon = {
-                    Icon(
-                        Icons.Outlined.Edit,
-                        contentDescription = null
-                    )
-                })
-            DropdownMenuItem(
-                text = { Text(R.string.share.string) },
-                onClick = {
-                    val sendIntent = Intent().apply {
-                        action = Intent.ACTION_SEND
-                        putExtra(Intent.EXTRA_TEXT, memo.content)
-                        type = "text/plain"
-                    }
-                    val shareIntent = Intent.createChooser(sendIntent, null)
-                    context.startActivity(shareIntent)
-                },
-                leadingIcon = {
-                    Icon(
-                        Icons.Outlined.Share,
-                        contentDescription = null
-                    )
-                })
+            if (showEditAndShare) {
+                DropdownMenuItem(
+                    text = { Text(R.string.edit.string) },
+                    onClick = {
+                        rootNavController.navigate("${RouteName.EDIT}?memoId=${memo.identifier}")
+                    },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Outlined.Edit,
+                            contentDescription = null
+                        )
+                    })
+                DropdownMenuItem(
+                    text = { Text(R.string.share.string) },
+                    onClick = {
+                        val sendIntent = Intent().apply {
+                            action = Intent.ACTION_SEND
+                            putExtra(Intent.EXTRA_TEXT, memo.content)
+                            type = "text/plain"
+                        }
+                        val shareIntent = Intent.createChooser(sendIntent, null)
+                        context.startActivity(shareIntent)
+                    },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Outlined.Share,
+                            contentDescription = null
+                        )
+                    })
+            }
             DropdownMenuItem(
                 text = { Text(R.string.copy.string) },
                 onClick = {
