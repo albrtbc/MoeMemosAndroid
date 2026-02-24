@@ -59,10 +59,6 @@ import me.mudkip.moememos.ext.string
 import me.mudkip.moememos.ext.titleResource
 import me.mudkip.moememos.ui.page.common.LocalRootNavController
 import me.mudkip.moememos.ui.page.common.RouteName
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.graphics.graphicsLayer
 import me.mudkip.moememos.viewmodel.LocalMemos
 import me.mudkip.moememos.viewmodel.LocalUserState
 
@@ -73,22 +69,13 @@ fun MemosCard(
     editGesture: MemoEditGesture = MemoEditGesture.NONE,
     previewMode: Boolean = false,
     showSyncStatus: Boolean = false,
-    onTagClick: ((String) -> Unit)? = null,
-    animated: Boolean = false
+    onTagClick: ((String) -> Unit)? = null
 ) {
     val memosViewModel = LocalMemos.current
     val rootNavController = LocalRootNavController.current
     val scope = rememberCoroutineScope()
 
-    val alphaAnim = remember { Animatable(if (animated) 0f else 1f) }
-    LaunchedEffect(Unit) {
-        if (animated) {
-            alphaAnim.animateTo(1f, animationSpec = tween(220))
-        }
-    }
-
     val cardModifier = Modifier
-        .graphicsLayer { alpha = alphaAnim.value }
         .padding(horizontal = 15.dp, vertical = 10.dp)
         .fillMaxWidth()
         .combinedClickable(

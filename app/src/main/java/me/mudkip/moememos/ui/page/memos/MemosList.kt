@@ -2,15 +2,14 @@ package me.mudkip.moememos.ui.page.memos
 
 import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -54,7 +53,7 @@ import timber.log.Timber
 @Composable
 fun MemosList(
     contentPadding: PaddingValues,
-    lazyListState: LazyListState = rememberLazyListState(),
+    scrollState: ScrollState = rememberScrollState(),
     tag: String? = null,
     searchString: String? = null,
     onRefresh: (suspend () -> Unit)? = null,
@@ -74,7 +73,6 @@ fun MemosList(
     val scope = rememberCoroutineScope()
     var isRefreshing by remember { mutableStateOf(false) }
     var syncAlert by remember { mutableStateOf<PullRefreshSyncAlert?>(null) }
-    val seenMemoIds = remember { mutableSetOf<String>() }
 
     val pagedMemos = viewModel.pagedMemos.collectAsLazyPagingItems()
 
@@ -125,14 +123,13 @@ fun MemosList(
         state = refreshState,
         modifier = Modifier.padding(contentPadding)
     ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            state = lazyListState
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
         ) {
-            items(pagedMemos.itemCount) { index ->
-                val memo = pagedMemos[index] ?: return@items
-                val shouldAnimate = memo.identifier !in seenMemoIds
-                if (shouldAnimate) seenMemoIds.add(memo.identifier)
+            for (index in 0 until pagedMemos.itemCount) {
+                val memo = pagedMemos[index] ?: continue
                 MemosCard(
                     memo = memo,
                     onClick = { selectedMemo ->
@@ -143,28 +140,25 @@ fun MemosList(
                     editGesture = editGesture ?: MemoEditGesture.NONE,
                     previewMode = true,
                     showSyncStatus = currentAccount !is Account.Local,
-                    onTagClick = onTagClick,
-                    animated = shouldAnimate
+                    onTagClick = onTagClick
                 )
             }
 
             // Loading indicator for appending more pages
             if (pagedMemos.loadState.append is LoadState.Loading) {
-                item {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        CircularProgressIndicator()
-                        Text(
-                            text = stringResource(R.string.loading),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    CircularProgressIndicator()
+                    Text(
+                        text = stringResource(R.string.loading),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
         }

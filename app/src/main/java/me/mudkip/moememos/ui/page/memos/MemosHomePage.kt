@@ -1,6 +1,6 @@
 package me.mudkip.moememos.ui.page.memos
 
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
@@ -42,7 +42,7 @@ fun MemosHomePage(
     drawerState: DrawerState? = null,
     navController: NavHostController
 ) {
-    val listState = rememberLazyListState()
+    val listState = rememberScrollState()
     val scope = rememberCoroutineScope()
     val rootNavController = LocalRootNavController.current
     val memosViewModel = LocalMemos.current
@@ -52,7 +52,7 @@ fun MemosHomePage(
 
     val expandedFab by remember {
         derivedStateOf {
-            listState.firstVisibleItemIndex == 0
+            listState.value == 0
         }
     }
     var syncAlert by remember { mutableStateOf<HomeSyncAlert?>(null) }
@@ -120,7 +120,7 @@ fun MemosHomePage(
 
         content = { innerPadding ->
             MemosList(
-                lazyListState = listState,
+                scrollState = listState,
                 contentPadding = innerPadding,
                 onRefresh = { requestManualSync() },
                 onTagClick = { tag ->
