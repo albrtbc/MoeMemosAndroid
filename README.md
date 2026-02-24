@@ -47,7 +47,7 @@ A custom fork of [MoeMemosAndroid](https://github.com/mudkipme/MoeMemosAndroid) 
 
 ## Installation
 
-This app is not published on any store. Download the latest APK from the [Releases](https://github.com/albrtbc/MoeMemosAndroid/releases/latest) page.
+This app is not published on any store. Download the latest APK from the [Releases](https://github.com/albrtbc/memos-android/releases/latest) page.
 
 1. Download the `.apk` file from Releases
 2. On your Android device, enable "Install from unknown sources" if not already enabled
@@ -62,8 +62,8 @@ GS Memos is designed to work with the [albrtbc/memos](https://github.com/albrtbc
 | App | Description | Repository |
 |-----|-------------|------------|
 | **Memos** | Server — API + web frontend | [albrtbc/memos](https://github.com/albrtbc/memos) |
-| **Memos Firefox/Chrome** | Browser extension | [albrtbc/memos-firefox](https://github.com/albrtbc/memos-firefox) |
-| **GS Memos** (this repo) | Android app | [albrtbc/MoeMemosAndroid](https://github.com/albrtbc/MoeMemosAndroid) |
+| **Memos Firefox/Chrome** | Browser extension | [albrtbc/memos-browser-extension](https://github.com/albrtbc/memos-browser-extension) |
+| **GS Memos** (this repo) | Android app | [albrtbc/memos-android](https://github.com/albrtbc/memos-android) |
 
 ## License
 
