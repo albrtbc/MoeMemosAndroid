@@ -6,6 +6,7 @@
       "bump-minor-pre-major": true,
       "changelog-path": "CHANGELOG.md",
       "include-component-in-tag": false,
+      "include-v-in-tag": true,
       "extra-files": [
         {
           "type": "generic",
