@@ -75,7 +75,8 @@ class MemosPagingSource(
             locationPlaceholder = remoteLocation?.placeholder,
             locationLatitude = remoteLocation?.latitude,
             locationLongitude = remoteLocation?.longitude,
-            locationZoom = existing?.locationZoom ?: remoteLocation?.zoom
+            locationZoom = existing?.locationZoom ?: remoteLocation?.zoom,
+            locationAltitude = remoteLocation?.altitude
         )
         memoDao.insertMemo(entity)
 

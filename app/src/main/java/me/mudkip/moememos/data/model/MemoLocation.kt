@@ -4,7 +4,8 @@ data class MemoLocation(
     val placeholder: String,
     val latitude: Double,
     val longitude: Double,
-    val zoom: Int = DEFAULT_ZOOM
+    val zoom: Int = DEFAULT_ZOOM,
+    val altitude: Double = 0.0
 ) {
     companion object {
         const val DEFAULT_ZOOM = 15

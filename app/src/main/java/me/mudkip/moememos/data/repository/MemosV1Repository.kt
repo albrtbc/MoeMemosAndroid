@@ -62,7 +62,7 @@ class MemosV1Repository(
             archived = memo.state == MemosV1State.ARCHIVED,
             updatedAt = memo.updateTime,
             location = memo.location?.let {
-                MemoLocation(it.placeholder, it.latitude, it.longitude, MemoLocation.DEFAULT_ZOOM)
+                MemoLocation(it.placeholder, it.latitude, it.longitude, MemoLocation.DEFAULT_ZOOM, it.altitude)
             }
         )
     }
@@ -161,7 +161,7 @@ class MemosV1Repository(
         location: MemoLocation?
     ): ApiResponse<Memo> {
         val apiLocation = location?.takeIf { !it.isEmpty }?.let {
-            MemosV1Location(it.placeholder, it.latitude, it.longitude)
+            MemosV1Location(it.placeholder, it.latitude, it.longitude, it.altitude)
         }
         val resp = memosApi.createMemo(
             MemosV1CreateMemoRequest(
@@ -212,7 +212,7 @@ class MemosV1Repository(
         }
 
         val apiLocation = location?.takeIf { !it.isEmpty }?.let {
-            MemosV1Location(it.placeholder, it.latitude, it.longitude)
+            MemosV1Location(it.placeholder, it.latitude, it.longitude, it.altitude)
         }
         val resp = memosApi.updateMemo(getId(remoteId), UpdateMemoRequest(
             content = content,

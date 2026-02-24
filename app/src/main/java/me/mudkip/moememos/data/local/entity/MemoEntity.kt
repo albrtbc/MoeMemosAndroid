@@ -33,7 +33,8 @@ data class MemoEntity(
     val locationPlaceholder: String? = null,
     val locationLatitude: Double? = null,
     val locationLongitude: Double? = null,
-    val locationZoom: Int? = null
+    val locationZoom: Int? = null,
+    val locationAltitude: Double? = null
 ) : MemoRepresentable {
     @Ignore
     override var resources: List<ResourceEntity> = emptyList()
@@ -45,7 +46,8 @@ data class MemoEntity(
                 placeholder = locationPlaceholder ?: "",
                 latitude = locationLatitude ?: 0.0,
                 longitude = locationLongitude ?: 0.0,
-                zoom = locationZoom ?: MemoLocation.DEFAULT_ZOOM
+                zoom = locationZoom ?: MemoLocation.DEFAULT_ZOOM,
+                altitude = locationAltitude ?: 0.0
             )
         } else {
             null
