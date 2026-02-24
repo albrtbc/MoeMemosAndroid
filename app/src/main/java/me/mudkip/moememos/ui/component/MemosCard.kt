@@ -161,13 +161,6 @@ fun MemosCard(
                 MemosCardActionButton(memo)
             }
 
-            if (memo.location != null) {
-                LocationMapPreviewCompact(
-                    location = memo.location!!,
-                    modifier = Modifier.padding(start = 15.dp, end = 15.dp, bottom = 4.dp)
-                )
-            }
-
             MemoContent(
                 memo,
                 previewMode = previewMode,
@@ -192,6 +185,13 @@ fun MemosCard(
                 },
                 onTagClick = onTagClick
             )
+
+            if (memo.location != null) {
+                LocationMapPreviewCompact(
+                    location = memo.location!!,
+                    modifier = Modifier.padding(start = 15.dp, end = 15.dp, bottom = 10.dp)
+                )
+            }
         }
     }
 }
