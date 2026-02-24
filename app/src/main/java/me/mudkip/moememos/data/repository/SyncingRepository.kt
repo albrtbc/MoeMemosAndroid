@@ -118,8 +118,7 @@ class SyncingRepository(
                 locationPlaceholder = loc?.placeholder,
                 locationLatitude = loc?.latitude,
                 locationLongitude = loc?.longitude,
-                locationZoom = loc?.zoom,
-                locationAltitude = loc?.altitude
+                locationZoom = loc?.zoom
             )
             memoDao.insertMemo(localMemo)
 
@@ -163,8 +162,7 @@ class SyncingRepository(
                 locationPlaceholder = if (location != null) { if (location.isEmpty) null else location.placeholder } else existingMemo.locationPlaceholder,
                 locationLatitude = if (location != null) { if (location.isEmpty) null else location.latitude } else existingMemo.locationLatitude,
                 locationLongitude = if (location != null) { if (location.isEmpty) null else location.longitude } else existingMemo.locationLongitude,
-                locationZoom = if (location != null) { if (location.isEmpty) null else location.zoom } else existingMemo.locationZoom,
-                locationAltitude = if (location != null) { if (location.isEmpty) null else location.altitude } else existingMemo.locationAltitude
+                locationZoom = if (location != null) { if (location.isEmpty) null else location.zoom } else existingMemo.locationZoom
             )
             memoDao.insertMemo(updatedMemo)
 
@@ -760,8 +758,7 @@ class SyncingRepository(
                 locationPlaceholder = remoteLocation?.placeholder,
                 locationLatitude = remoteLocation?.latitude,
                 locationLongitude = remoteLocation?.longitude,
-                locationZoom = current?.locationZoom,
-                locationAltitude = remoteLocation?.altitude
+                locationZoom = remoteLocation?.zoom ?: current?.locationZoom
             )
         )
 

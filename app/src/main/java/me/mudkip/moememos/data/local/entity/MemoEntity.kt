@@ -46,8 +46,7 @@ data class MemoEntity(
                 placeholder = locationPlaceholder ?: "",
                 latitude = locationLatitude ?: 0.0,
                 longitude = locationLongitude ?: 0.0,
-                zoom = locationZoom ?: MemoLocation.DEFAULT_ZOOM,
-                altitude = locationAltitude ?: 0.0
+                zoom = locationZoom ?: MemoLocation.DEFAULT_ZOOM
             )
         } else {
             null

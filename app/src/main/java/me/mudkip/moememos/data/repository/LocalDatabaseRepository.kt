@@ -73,8 +73,7 @@ class LocalDatabaseRepository(
                 locationPlaceholder = location?.placeholder,
                 locationLatitude = location?.latitude,
                 locationLongitude = location?.longitude,
-                locationZoom = location?.zoom,
-                locationAltitude = location?.altitude
+                locationZoom = location?.zoom
             )
             memoDao.insertMemo(memo)
 
@@ -118,8 +117,7 @@ class LocalDatabaseRepository(
                 locationPlaceholder = if (location != null) { if (location.isEmpty) null else location.placeholder } else existingMemo.locationPlaceholder,
                 locationLatitude = if (location != null) { if (location.isEmpty) null else location.latitude } else existingMemo.locationLatitude,
                 locationLongitude = if (location != null) { if (location.isEmpty) null else location.longitude } else existingMemo.locationLongitude,
-                locationZoom = if (location != null) { if (location.isEmpty) null else location.zoom } else existingMemo.locationZoom,
-                locationAltitude = if (location != null) { if (location.isEmpty) null else location.altitude } else existingMemo.locationAltitude
+                locationZoom = if (location != null) { if (location.isEmpty) null else location.zoom } else existingMemo.locationZoom
             )
             memoDao.insertMemo(updatedMemo)
 
