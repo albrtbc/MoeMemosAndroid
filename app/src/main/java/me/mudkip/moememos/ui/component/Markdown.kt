@@ -191,6 +191,8 @@ fun Markdown(
                             is EmbedInfo.YouTube -> YouTubeEmbedCard(embed.videoId, embed.url)
                             is EmbedInfo.Twitter -> TwitterEmbedCard(embed.tweetId, embed.url)
                             is EmbedInfo.Reddit -> RedditEmbedCard(embed.url)
+                            is EmbedInfo.TikTok -> TikTokEmbedCard(embed.url)
+                            is EmbedInfo.Instagram -> InstagramEmbedCard(embed.url)
                         }
                     } else {
                         MarkdownParagraph(
