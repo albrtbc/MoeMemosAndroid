@@ -1,8 +1,10 @@
-name: Build Signed Release APK
+name: Build Release APK
 
 on:
   push:
     tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+-*"
       - "[0-9]+.[0-9]+.[0-9]+"
       - "[0-9]+.[0-9]+.[0-9]+-*"
   workflow_call:
@@ -21,14 +23,6 @@ jobs:
     env:
       RELEASE_TAG: ${{ inputs.tag_name || github.ref_name }}
     steps:
-      - name: Validate tag format
-        run: |
-          TAG="${RELEASE_TAG}"
-          if [[ ! "$TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta)\.[0-9]+)?$ ]]; then
-            echo "Tag '$TAG' is not supported. Expected formats: 0.9.0, 0.9.0-alpha.0, or 0.9.0-beta.0"
-            exit 1
-          fi
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -43,50 +37,62 @@ jobs:
       - name: Set up Gradle cache
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Prepare release keystore
+      - name: Determine build type
+        id: build-type
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
         run: |
-          if [[ -z "$ANDROID_KEYSTORE_BASE64" ]]; then
-            echo "Missing secret: ANDROID_KEYSTORE_BASE64"
-            exit 1
+          if [[ -n "$ANDROID_KEYSTORE_BASE64" ]]; then
+            echo "signed=true" >> "$GITHUB_OUTPUT"
+            echo "Building signed release APK"
+          else
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+            echo "No signing secrets found, building debug APK"
           fi
+
+      - name: Prepare release keystore
+        if: steps.build-type.outputs.signed == 'true'
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
           echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "${RUNNER_TEMP}/release.keystore"
 
-      - name: Build signed release APK (universal)
+      - name: Build signed release APK
+        if: steps.build-type.outputs.signed == 'true'
         env:
           ANDROID_SIGNING_STORE_FILE: ${{ runner.temp }}/release.keystore
           ANDROID_SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
           ANDROID_SIGNING_KEY_ALIAS: ${{ secrets.ANDROID_SIGNING_KEY_ALIAS }}
           ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
-        run: |
-          for var_name in ANDROID_SIGNING_STORE_FILE ANDROID_SIGNING_STORE_PASSWORD ANDROID_SIGNING_KEY_ALIAS ANDROID_SIGNING_KEY_PASSWORD; do
-            if [[ -z "${!var_name}" ]]; then
-              echo "Missing required signing value: ${var_name}"
-              exit 1
-            fi
-          done
-          ./gradlew :app:assembleRelease
+        run: ./gradlew :app:assembleRelease
+
+      - name: Build debug APK
+        if: steps.build-type.outputs.signed == 'false'
+        run: ./gradlew :app:assembleDebug
 
       - name: Rename APK with tag
         run: |
-          APK_PATH="app/build/outputs/apk/release/app-release.apk"
+          if [[ "${{ steps.build-type.outputs.signed }}" == "true" ]]; then
+            APK_PATH="app/build/outputs/apk/release/app-release.apk"
+          else
+            APK_PATH="app/build/outputs/apk/debug/app-debug.apk"
+          fi
           if [[ ! -f "$APK_PATH" ]]; then
             echo "APK not found at $APK_PATH"
             exit 1
           fi
-          cp "$APK_PATH" "moememos-v${RELEASE_TAG}.apk"
+          cp "$APK_PATH" "moememos-${RELEASE_TAG}.apk"
 
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: moememos-v${{ env.RELEASE_TAG }}
-          path: moememos-v${{ env.RELEASE_TAG }}.apk
+          name: moememos-${{ env.RELEASE_TAG }}
+          path: moememos-${{ env.RELEASE_TAG }}.apk
 
       - name: Upload APK to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: moememos-v${{ env.RELEASE_TAG }}.apk
+          files: moememos-${{ env.RELEASE_TAG }}.apk
           generate_release_notes: true
           tag_name: ${{ env.RELEASE_TAG }}
           prerelease: ${{ contains(env.RELEASE_TAG, '-') }}
