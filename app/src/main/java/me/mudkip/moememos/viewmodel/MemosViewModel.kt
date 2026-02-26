@@ -40,7 +40,6 @@ import kotlinx.coroutines.withContext
 import me.mudkip.moememos.R
 import me.mudkip.moememos.data.constant.MoeMemosException
 import me.mudkip.moememos.data.datasource.MEMOS_PAGE_SIZE
-import me.mudkip.moememos.data.datasource.MemosPagingSource
 import me.mudkip.moememos.data.local.dao.MemoDao
 import me.mudkip.moememos.data.local.entity.MemoEntity
 import me.mudkip.moememos.data.local.entity.MemoWithResources
@@ -87,7 +86,6 @@ class MemosViewModel @Inject constructor(
 
     // --- Paging state ---
     private val _currentFilter = MutableStateFlow<MemoFilter>(MemoFilter.None)
-    private val _useLocalFallback = MutableStateFlow(false)
     private val _refreshSignal = MutableStateFlow(0L)
 
     private val debouncedFilter: Flow<MemoFilter> = _currentFilter
@@ -99,75 +97,37 @@ class MemosViewModel @Inject constructor(
     val pagedMemos: Flow<PagingData<MemoEntity>> = combine(
         accountService.currentAccount,
         debouncedFilter,
-        _useLocalFallback,
         _refreshSignal
-    ) { account, filter, useLocal, _ ->
-        Triple(account, filter, useLocal)
-    }.flatMapLatest { (account, filter, useLocal) ->
+    ) { account, filter, _ ->
+        Pair(account, filter)
+    }.flatMapLatest { (account, filter) ->
         if (account == null) {
             return@flatMapLatest flowOf(PagingData.empty<MemoEntity>())
         }
 
         val accountKey = account.accountKey()
-        val isV1Remote = account is Account.MemosV1
 
-        // Use API paging for search/tag on V1 accounts; Room paging otherwise.
-        // Room paging handles pinned-first ordering correctly.
-        val useApiPaging = isV1Remote && !useLocal && filter !is MemoFilter.None
-
-        if (useApiPaging) {
-            val apiFilter = buildApiFilter(filter)
-            val remoteRepo = accountService.getRemoteRepository()
-                ?: return@flatMapLatest flowOf(PagingData.empty<MemoEntity>())
-            Pager(PagingConfig(pageSize = MEMOS_PAGE_SIZE)) {
-                MemosPagingSource(
-                    remoteRepository = remoteRepo,
-                    memoDao = memoDao,
-                    accountKey = accountKey,
-                    filter = apiFilter,
-                    orderBy = "display_time desc"
-                )
-            }.flow
-        } else {
-            Pager(PagingConfig(pageSize = MEMOS_PAGE_SIZE)) {
-                when (filter) {
-                    is MemoFilter.None -> memoDao.getPagedMemos(accountKey)
-                    is MemoFilter.Tag -> memoDao.getPagedMemosByTag(accountKey, filter.tag)
-                    is MemoFilter.Search -> memoDao.getPagedMemosBySearch(accountKey, filter.query)
-                }
-            }.flow.map { pagingData ->
-                pagingData.map { memoWithResources ->
-                    memoWithResources.memo.copy().also { it.resources = memoWithResources.resources }
-                }
+        // Always paginate from local Room DB (offline-first).
+        // All memos are synced from server in batches of 200 during sync.
+        Pager(PagingConfig(pageSize = MEMOS_PAGE_SIZE)) {
+            when (filter) {
+                is MemoFilter.None -> memoDao.getPagedMemos(accountKey)
+                is MemoFilter.Tag -> memoDao.getPagedMemosByTag(accountKey, filter.tag)
+                is MemoFilter.Search -> memoDao.getPagedMemosBySearch(accountKey, filter.query)
+            }
+        }.flow.map { pagingData ->
+            pagingData.map { memoWithResources ->
+                memoWithResources.memo.copy().also { it.resources = memoWithResources.resources }
             }
         }
     }.cachedIn(viewModelScope)
 
     fun setFilter(filter: MemoFilter) {
-        _useLocalFallback.value = false
         _currentFilter.value = filter
-    }
-
-    fun enableOfflineFallback() {
-        _useLocalFallback.value = true
     }
 
     fun triggerPagingRefresh() {
         _refreshSignal.value = System.currentTimeMillis()
-    }
-
-    private fun buildApiFilter(filter: MemoFilter): String? {
-        return when (filter) {
-            is MemoFilter.None -> null
-            is MemoFilter.Tag -> {
-                val escaped = filter.tag.replace("\\", "\\\\").replace("\"", "\\\"")
-                "tag in [\"$escaped\"]"
-            }
-            is MemoFilter.Search -> {
-                val escaped = filter.query.replace("\\", "\\\\").replace("\"", "\\\"")
-                "content.contains(\"$escaped\")"
-            }
-        }
     }
 
     // --- Existing logic (unchanged, used for heatmap/stats/widgets) ---

@@ -86,14 +86,6 @@ fun MemosList(
         viewModel.setFilter(filter)
     }
 
-    // Handle offline fallback on refresh error
-    LaunchedEffect(pagedMemos.loadState.refresh) {
-        val refreshLoadState = pagedMemos.loadState.refresh
-        if (refreshLoadState is LoadState.Error) {
-            viewModel.enableOfflineFallback()
-        }
-    }
-
     PullToRefreshBox(
         isRefreshing = isRefreshing,
         onRefresh = {
