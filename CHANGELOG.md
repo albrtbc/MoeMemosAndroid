@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.4.5](https://github.com/albrtbc/memos-android/compare/v2.4.4...v2.4.5) (2026-02-26)
+
+
+### Bug Fixes
+
+* use specific MIME type when opening images so Android remembers app preference ([2ca4fcb](https://github.com/albrtbc/memos-android/commit/2ca4fcb3549178b9d0da022957a80152d3465ab9))
+
 ## [2.4.4](https://github.com/albrtbc/memos-android/compare/v2.4.3...v2.4.4) (2026-02-26)
 
 
